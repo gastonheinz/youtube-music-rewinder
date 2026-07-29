@@ -1,0 +1,147 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useHistoryData, STATUS } from './hooks/useHistoryData.js';
+import { useStats } from './hooks/useStats.js';
+import { FileDrop, ImportSummary } from './components/FileDrop.jsx';
+import { DateRangePicker } from './components/DateRangePicker.jsx';
+import { Dashboard } from './components/Dashboard.jsx';
+import { ClassifierPanel } from './components/ClassifierPanel.jsx';
+import { StoriesPlayer } from './components/stories/StoriesPlayer.jsx';
+import { DEFAULT_TRACK_MINUTES } from './lib/stats/aggregate.js';
+import { formatNumber } from './lib/format.js';
+import './styles/app.css';
+import './components/charts/charts.css';
+
+export default function App() {
+  const history = useHistoryData();
+  const { dataset, status } = history;
+
+  const [range, setRange] = useState(null);
+  const [musicOnly, setMusicOnly] = useState(true);
+  const [trackMinutes, setTrackMinutes] = useState(DEFAULT_TRACK_MINUTES);
+  const [view, setView] = useState('dashboard');
+  const [storiesOpen, setStoriesOpen] = useState(false);
+  const [theme, setTheme] = useState(null);
+
+  const bounds = useMemo(() => {
+    if (!dataset || !dataset.n) return null;
+    return { min: dataset.t[0], max: dataset.t[dataset.n - 1] };
+  }, [dataset]);
+
+  // Al cargar un historial nuevo, arrancamos mostrando todo el rango disponible.
+  useEffect(() => {
+    if (bounds) setRange({ from: bounds.min, to: bounds.max });
+    else setRange(null);
+  }, [bounds]);
+
+  useEffect(() => {
+    if (theme) document.documentElement.dataset.theme = theme;
+    else delete document.documentElement.dataset.theme;
+  }, [theme]);
+
+  const stats = useStats(dataset, {
+    from: range?.from ?? -Infinity,
+    to: range?.to ?? Infinity,
+    musicOnly,
+    overrides: history.overrides,
+    trackMinutes,
+  });
+
+  const showLanding = status === STATUS.IDLE || status === STATUS.PARSING || status === STATUS.ERROR;
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <span className="topbar__brand">
+          <span className="topbar__dot" aria-hidden="true" />
+          YouTube Music Rewinder
+        </span>
+        <div className="topbar__actions">
+          <button
+            type="button"
+            className="linkbutton"
+            onClick={() => setTheme((current) => (current === 'light' ? 'dark' : 'light'))}
+          >
+            Cambiar tema
+          </button>
+        </div>
+      </header>
+
+      {status === STATUS.RESTORING ? <p className="muted">Cargando…</p> : null}
+
+      {showLanding ? (
+        <FileDrop
+          onFile={history.importFile}
+          error={history.error}
+          parsing={status === STATUS.PARSING}
+          progress={history.progress}
+        />
+      ) : null}
+
+      {status === STATUS.READY && stats && range && bounds ? (
+        <>
+          <div className="toolbar">
+            <ImportSummary meta={history.meta} onReset={history.reset} />
+            <div className="toolbar__actions">
+              <button
+                type="button"
+                className="linkbutton"
+                onClick={() => setView(view === 'classifier' ? 'dashboard' : 'classifier')}
+              >
+                Ajustar clasificación
+                {stats.ambiguous.length ? ` (${formatNumber(stats.ambiguous.length)})` : ''}
+              </button>
+              <button type="button" className="button" onClick={() => setStoriesOpen(true)}>
+                ▶ Ver mi Rewind
+              </button>
+            </div>
+          </div>
+
+          <DateRangePicker
+            range={range}
+            bounds={bounds}
+            onChange={setRange}
+            musicOnly={musicOnly}
+            onMusicOnlyChange={setMusicOnly}
+          />
+
+          {view === 'classifier' ? (
+            <ClassifierPanel
+              stats={stats}
+              overrides={history.overrides}
+              onChannelOverride={history.setChannelOverride}
+              onReset={history.resetOverrides}
+              onClose={() => setView('dashboard')}
+            />
+          ) : (
+            <Dashboard stats={stats} musicOnly={musicOnly} trackMinutes={trackMinutes} />
+          )}
+
+          <footer className="footer">
+            <label className="field field--inline">
+              <span className="field__label muted">Duración media por tema (min)</span>
+              <input
+                type="number"
+                min="1"
+                max="15"
+                step="0.5"
+                value={trackMinutes}
+                onChange={(event) => {
+                  const next = Number(event.target.value);
+                  if (Number.isFinite(next) && next > 0) setTrackMinutes(next);
+                }}
+              />
+            </label>
+            <p className="muted footer__note">
+              Tu historial se procesa entero dentro de tu navegador y se guarda solo en este
+              dispositivo. No se sube a ningún servidor.
+            </p>
+          </footer>
+        </>
+      ) : null}
+
+      {storiesOpen && stats ? (
+        <StoriesPlayer stats={stats} musicOnly={musicOnly} onClose={() => setStoriesOpen(false)} />
+      ) : null}
+    </div>
+  );
+}

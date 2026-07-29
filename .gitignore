@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node / React
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Datos crudos de Google Takeout (historial personal, no subir)
+data/raw/
+*.takeout.json
+watch-history.json
+
+# Editores / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db

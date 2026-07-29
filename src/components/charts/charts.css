@@ -1,0 +1,235 @@
+.chart {
+  margin: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px 20px;
+}
+
+.chart__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.chart__title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.chart__subtitle {
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.chart__toggle {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 5px 10px;
+}
+
+.chart__toggle:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.chart__body {
+  position: relative;
+}
+
+.chart__plot {
+  position: relative;
+  width: 100%;
+}
+
+.chart__plot svg {
+  display: block;
+  overflow: visible;
+}
+
+/* Ejes y ticks siempre con tokens de tinta, nunca con el color de la serie. */
+.chart__tick {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart__footer {
+  font-size: 0.8rem;
+  margin-top: 12px;
+}
+
+.chart__empty {
+  padding: 32px 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.chart__tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  box-shadow: var(--shadow-card);
+  z-index: 5;
+}
+
+.chart__tooltip span {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El scroll vive en el contenedor; la tabla ancha se desplaza adentro de su
+   propia tarjeta y nunca hace scrollear el body. */
+.chart__tableWrap {
+  margin-top: 16px;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.chart__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.chart__table th,
+.chart__table td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.chart__table td {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart__table thead th {
+  color: var(--text-muted);
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  background: var(--surface-1);
+}
+
+/* ---------- Ranking en barras ---------- */
+
+.barlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.barlist__row {
+  display: grid;
+  grid-template-columns: 20px minmax(90px, 1.4fr) minmax(60px, 2fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.barlist__rank {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.barlist__label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.barlist__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.barlist__secondary {
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barlist__track {
+  height: 12px;
+  background: var(--surface-2);
+  border-radius: 0 4px 4px 0;
+}
+
+/* Punta redondeada donde termina el dato, cuadrada contra la linea base. */
+.barlist__bar {
+  display: block;
+  height: 100%;
+  background: var(--series-1);
+  border-radius: 0 4px 4px 0;
+  transition: width 240ms ease-out;
+}
+
+.barlist__value {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 44px;
+}
+
+@media (max-width: 560px) {
+  .barlist__row {
+    grid-template-columns: 18px minmax(80px, 1fr) auto;
+  }
+
+  .barlist__track {
+    display: none;
+  }
+}
+
+/* ---------- Leyenda del heatmap ---------- */
+
+.heatmap__legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 0.78rem;
+}
+
+.heatmap__swatch {
+  width: 16px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.heatmap__legend .muted:first-child {
+  margin-right: 4px;
+}
+
+.heatmap__legend .muted:last-child {
+  margin-left: 4px;
+}
