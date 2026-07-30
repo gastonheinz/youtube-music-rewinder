@@ -7,6 +7,12 @@
  *
  * El color de los datos vive en --series-1 y en la rampa secuencial. Los textos
  * NUNCA usan el color de la serie: van siempre con tokens de tinta.
+ *
+ * --on-accent es la excepcion controlada: es la tinta que va ENCIMA de un relleno
+ * de acento (boton primario, preset activo, perilla del toggle). No depende del
+ * tema sino del acento, que el usuario elige, asi que App.jsx lo recalcula en
+ * runtime segun la luminancia del color; el valor de aca es el del acento por
+ * defecto.
  */
 
 :root {
@@ -28,6 +34,7 @@
   /* Serie unica: todos los graficos de este tablero son de una sola serie. */
   --series-1: #3987e5;
   --series-1-soft: rgba(57, 135, 229, 0.16);
+  --on-accent: #ffffff;
   --de-emphasis: #4a4a47;
 
   --good: #0ca30c;
@@ -74,6 +81,7 @@
 
     --series-1: #2a78d6;
     --series-1-soft: rgba(42, 120, 214, 0.14);
+    --on-accent: #ffffff;
     --de-emphasis: #d5d4cd;
 
     --good: #006300;
@@ -108,6 +116,7 @@
 
   --series-1: #2a78d6;
   --series-1-soft: rgba(42, 120, 214, 0.14);
+  --on-accent: #ffffff;
   --de-emphasis: #d5d4cd;
 
   --good: #006300;

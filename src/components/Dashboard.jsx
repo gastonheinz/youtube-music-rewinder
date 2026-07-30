@@ -60,46 +60,54 @@ export function Dashboard({
 
   return (
     <div className="dashboard">
-      <section className="dashboard__hero card">
-        <HeroFigure
-          value={formatNumber(totals.plays)}
-          label={musicOnly ? 'reproducciones de música' : 'reproducciones'}
-          caption={`${formatDate(stats.range.from)} – ${formatDate(stats.range.to)} · ${pluralize(stats.range.days, 'día', 'días')}`}
-        />
-        {delta ? (
-          <p className={`hero__delta hero__delta--${delta.direction}`}>
-            {delta.text} <span className="muted">{delta.caption}</span>
-          </p>
-        ) : null}
-      </section>
+      {/*
+        La cifra grande y las seis secundarias son un mismo bloque de resumen, asi
+        que van en un solo panel separado por filetes. Sueltas, la cifra quedaba en
+        una caja vacia y las seis tarjetas competian con ella en peso visual; ademas
+        el grid libre dejaba una huerfana sola en la segunda fila.
+      */}
+      <section className="summary">
+        <div className="summary__hero">
+          <HeroFigure
+            value={formatNumber(totals.plays)}
+            label={musicOnly ? 'reproducciones de música' : 'reproducciones'}
+            caption={`${formatDate(stats.range.from)} – ${formatDate(stats.range.to)} · ${pluralize(stats.range.days, 'día', 'días')}`}
+          />
+          {delta ? (
+            <p className={`hero__delta hero__delta--${delta.direction}`}>
+              {delta.text} <span className="muted">{delta.caption}</span>
+            </p>
+          ) : null}
+        </div>
 
-      <section className="tiles">
-        <StatTile label="Canciones distintas" value={formatNumber(totals.songs)} />
-        <StatTile label="Artistas distintos" value={formatNumber(totals.artists)} />
-        <StatTile
-          label="Tiempo escuchado"
-          value={formatDurationShort(totals.estimatedMinutes)}
-          hint={`Estimado: Takeout no guarda la duración de los videos. Calculado a ${formatDecimal(trackMinutes)} min por tema.`}
-        />
-        <StatTile
-          label="Días con música"
-          value={formatNumber(totals.activeDays)}
-          hint={`de ${pluralize(stats.range.days, 'día', 'días')} en el rango`}
-        />
-        <StatTile
-          label="Promedio por día activo"
-          value={formatDecimal(totals.avgPerActiveDay)}
-          hint="reproducciones"
-        />
-        <StatTile
-          label="Racha más larga"
-          value={pluralize(stats.streak.days, 'día', 'días')}
-          hint={
-            stats.streak.from
-              ? `${formatDayKey(stats.streak.from)} – ${formatDayKey(stats.streak.to)}`
-              : undefined
-          }
-        />
+        <div className="summary__tiles">
+          <StatTile label="Canciones distintas" value={formatNumber(totals.songs)} />
+          <StatTile label="Artistas distintos" value={formatNumber(totals.artists)} />
+          <StatTile
+            label="Tiempo escuchado"
+            value={formatDurationShort(totals.estimatedMinutes)}
+            hint={`Estimado: Takeout no guarda la duración de los videos. Calculado a ${formatDecimal(trackMinutes)} min por tema.`}
+          />
+          <StatTile
+            label="Días con música"
+            value={formatNumber(totals.activeDays)}
+            hint={`de ${pluralize(stats.range.days, 'día', 'días')} en el rango`}
+          />
+          <StatTile
+            label="Promedio por día activo"
+            value={formatDecimal(totals.avgPerActiveDay)}
+            hint="reproducciones"
+          />
+          <StatTile
+            label="Racha más larga"
+            value={pluralize(stats.streak.days, 'día', 'días')}
+            hint={
+              stats.streak.from
+                ? `${formatDayKey(stats.streak.from)} – ${formatDayKey(stats.streak.to)}`
+                : undefined
+            }
+          />
+        </div>
       </section>
 
       <section className="grid grid--2">

@@ -45,12 +45,16 @@ export function DateRangePicker({ range, bounds, onChange, musicOnly, onMusicOnl
 
   return (
     <div className="filters">
-      <div className="filters__presets" role="group" aria-label="Rango de fechas">
+      {/*
+        Los presets son opciones excluyentes del mismo eje, asi que van en un
+        solo riel: seis pastillas sueltas hacian leer seis controles distintos.
+      */}
+      <div className="segmented" role="group" aria-label="Rango de fechas">
         {presets.map((preset) => (
           <button
             key={preset.id}
             type="button"
-            className={`chip${isActive(preset) ? ' chip--active' : ''}`}
+            className={`segmented__item${isActive(preset) ? ' segmented__item--active' : ''}`}
             aria-pressed={isActive(preset)}
             onClick={() => applyPreset(preset)}
           >
@@ -58,6 +62,8 @@ export function DateRangePicker({ range, bounds, onChange, musicOnly, onMusicOnl
           </button>
         ))}
       </div>
+
+      <span className="filters__sep" aria-hidden="true" />
 
       <div className="filters__dates">
         <label className="field">
@@ -88,13 +94,19 @@ export function DateRangePicker({ range, bounds, onChange, musicOnly, onMusicOnl
         </label>
       </div>
 
+      {/*
+        Sigue siendo un checkbox real dentro de su label: lo sacamos de la pintura
+        pero no del arbol de accesibilidad, y el foco se dibuja sobre el riel.
+      */}
       <label className="switch">
         <input
           type="checkbox"
+          className="switch__input"
           checked={musicOnly}
           onChange={(event) => onMusicOnlyChange(event.target.checked)}
         />
-        <span>Solo música</span>
+        <span className="switch__track" aria-hidden="true" />
+        <span className="switch__text">Solo música</span>
       </label>
     </div>
   );

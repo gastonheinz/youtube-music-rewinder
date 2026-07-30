@@ -102,15 +102,26 @@ export function FileDrop({ onFile, error, parsing, progress }) {
   );
 }
 
+/*
+ * El origen de los datos va en su propia pastilla y no como texto suelto: es un
+ * dato de estado ("esto es lo que estas mirando"), no una accion. Por eso la
+ * accion destructiva queda afuera de la pastilla.
+ */
 export function ImportSummary({ meta, onReset }) {
   if (!meta) return null;
   return (
-    <p className="muted importsummary">
-      {meta.fileName} · {meta.entries.toLocaleString('es-AR')} entradas
-      {meta.fileSize ? ` · ${formatFileSize(meta.fileSize)}` : ''}
+    <div className="importsummary">
+      <p className="importsummary__source">
+        <span className="importsummary__file">{meta.fileName}</span>
+        <span className="importsummary__meta muted">
+          {' · '}
+          {meta.entries.toLocaleString('es-AR')} entradas
+          {meta.fileSize ? ` · ${formatFileSize(meta.fileSize)}` : ''}
+        </span>
+      </p>
       <button type="button" className="linkbutton" onClick={onReset}>
         Borrar mis datos
       </button>
-    </p>
+    </div>
   );
 }

@@ -16,6 +16,11 @@ const HIDDEN_SONGS_KEY = 'yt-music-rewinder:hidden-songs';
 const ACCENT_COLOR_KEY = 'yt-music-rewinder:accent-color';
 const DEFAULT_ACCENT_COLOR = '#3987e5';
 
+// Tinta sobre un relleno de acento. No son tokens de tema: el fondo es el color
+// que elige el usuario, asi que la unica variable que importa es su luminancia.
+const ON_ACCENT_LIGHT = '#ffffff';
+const ON_ACCENT_DARK = '#0b0b0b';
+
 function loadHiddenSongs() {
   try {
     const raw = localStorage.getItem(HIDDEN_SONGS_KEY);
@@ -33,11 +38,46 @@ function loadAccentColor() {
   }
 }
 
-function hexToRgba(hex, alpha) {
+function hexToRgb(hex) {
   const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!match) return null;
-  const [r, g, b] = match.slice(1).map((part) => parseInt(part, 16));
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  return match.slice(1).map((part) => parseInt(part, 16));
+}
+
+function hexToRgba(hex, alpha) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return null;
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+}
+
+/*
+  El acento lo elige el usuario y puede ser un amarillo: blanco encima de eso no
+  se lee. La tinta se elige por contraste real contra el propio acento en vez de
+  quedar fija en blanco.
+*/
+function relativeLuminance(hex) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return null;
+  const [r, g, b] = rgb.map((channel) => {
+    const s = channel / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/*
+  No buscamos el maximo contraste sino el minimo aceptable: el umbral es 3:1, el
+  de texto grande y componentes de interfaz, que es lo que hay encima de un
+  relleno de acento (rotulos de boton, la perilla del toggle). Mientras el blanco
+  llegue a 3:1 se queda, porque es la lectura de siempre del boton primario; solo
+  con acentos claros (amarillos, cianes) pasamos a tinta oscura.
+*/
+function pickOnAccent(hex) {
+  const accent = relativeLuminance(hex);
+  if (accent === null) return ON_ACCENT_LIGHT;
+  const white = relativeLuminance(ON_ACCENT_LIGHT);
+  const contrastWithWhite = (white + 0.05) / (accent + 0.05);
+  return contrastWithWhite >= 3 ? ON_ACCENT_LIGHT : ON_ACCENT_DARK;
 }
 
 export default function App() {
@@ -87,6 +127,7 @@ export default function App() {
     document.documentElement.style.setProperty('--series-1', accentColor);
     const soft = hexToRgba(accentColor, 0.16);
     if (soft) document.documentElement.style.setProperty('--series-1-soft', soft);
+    document.documentElement.style.setProperty('--on-accent', pickOnAccent(accentColor));
     localStorage.setItem(ACCENT_COLOR_KEY, accentColor);
   }, [accentColor]);
 
@@ -128,7 +169,7 @@ export default function App() {
           YouTube Music Rewinder
         </span>
         <div className="topbar__actions">
-          <label className="colorpicker" title="Cambiar color principal">
+          <label className="control colorpicker" title="Cambiar color principal">
             <span className="colorpicker__swatch" style={{ background: accentColor }} aria-hidden="true" />
             Color
             <input
@@ -140,7 +181,7 @@ export default function App() {
           </label>
           <button
             type="button"
-            className="linkbutton"
+            className="control"
             onClick={() => setTheme((current) => (current === 'light' ? 'dark' : 'light'))}
           >
             Cambiar tema
@@ -166,7 +207,7 @@ export default function App() {
             <div className="toolbar__actions">
               <button
                 type="button"
-                className="linkbutton"
+                className="control"
                 onClick={() => setView(view === 'classifier' ? 'dashboard' : 'classifier')}
               >
                 Ajustar clasificación
