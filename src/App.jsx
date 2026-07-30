@@ -8,6 +8,7 @@ import { ClassifierPanel } from './components/ClassifierPanel.jsx';
 import { StoriesPlayer } from './components/stories/StoriesPlayer.jsx';
 import { DEFAULT_TRACK_MINUTES } from './lib/stats/aggregate.js';
 import { formatNumber } from './lib/format.js';
+import { buildSequentialRamp } from './lib/color.js';
 import './styles/app.css';
 import './components/charts/charts.css';
 
@@ -88,6 +89,25 @@ export default function App() {
     if (soft) document.documentElement.style.setProperty('--series-1-soft', soft);
     localStorage.setItem(ACCENT_COLOR_KEY, accentColor);
   }, [accentColor]);
+
+  // La rampa del heatmap sale del mismo color de acento; su direccion depende
+  // del tema (oscuro: mas es mas claro, claro: mas es mas oscuro), asi que
+  // tambien seguimos los cambios de preferencia de sistema cuando el tema es 'auto'.
+  useEffect(() => {
+    const applyRamp = () => {
+      const isDark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const ramp = buildSequentialRamp(accentColor, isDark);
+      if (!ramp) return;
+      ramp.forEach((color, index) => document.documentElement.style.setProperty(`--seq-${index + 1}`, color));
+    };
+
+    applyRamp();
+    if (theme) return undefined;
+
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    mql.addEventListener('change', applyRamp);
+    return () => mql.removeEventListener('change', applyRamp);
+  }, [accentColor, theme]);
 
   const stats = useStats(dataset, {
     from: range?.from ?? -Infinity,
