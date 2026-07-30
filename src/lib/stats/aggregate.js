@@ -15,6 +15,14 @@ import { localDayNumber, localMonthKey, daysInRange, dayNumberToKey } from './ti
 export const DEFAULT_TRACK_MINUTES = 3.5;
 
 /**
+ * Identidad estable de una cancion para "ocultar del top", independiente del
+ * indice interno del dataset (que puede cambiar entre re-importaciones).
+ */
+export function songHideKey(name, artist) {
+  return `${name}::${artist}`;
+}
+
+/**
  * Aplica las correcciones del usuario sobre la heuristica y devuelve el
  * veredicto efectivo de cada reproduccion.
  *
@@ -110,6 +118,7 @@ export function computeStats(dataset, options = {}) {
     trackMinutes = DEFAULT_TRACK_MINUTES,
     topLimit = 20,
     verdicts: providedVerdicts = null,
+    hiddenSongs = null,
   } = options;
 
   const verdicts = providedVerdicts ?? resolveVerdicts(dataset, overrides);
@@ -246,15 +255,16 @@ export function computeStats(dataset, options = {}) {
     songs: artistSongs.get(idx)?.size ?? 0,
   }));
 
-  const topSongs = topFromMap(songPlays, topLimit, (idx, count) => {
-    const artistIdx = dataset.songArtistIdx[idx];
-    return {
-      key: idx,
-      name: dataset.songLabels[idx] || '(sin titulo)',
-      artist: artistIdx >= 0 ? dataset.artists[artistIdx] : '',
-      plays: count,
-    };
-  });
+  const topSongs = [...songPlays.entries()]
+    .map(([idx, count]) => {
+      const artistIdx = dataset.songArtistIdx[idx];
+      const name = dataset.songLabels[idx] || '(sin titulo)';
+      const artist = artistIdx >= 0 ? dataset.artists[artistIdx] : '';
+      return { key: idx, name, artist, plays: count, hideKey: songHideKey(name, artist) };
+    })
+    .filter((song) => !hiddenSongs?.has(song.hideKey))
+    .sort((a, b) => b.plays - a.plays)
+    .slice(0, topLimit);
 
   const topChannels = topFromMap(channelPlays, topLimit, (idx, count) => ({
     key: idx,

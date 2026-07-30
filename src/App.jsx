@@ -11,6 +11,34 @@ import { formatNumber } from './lib/format.js';
 import './styles/app.css';
 import './components/charts/charts.css';
 
+const HIDDEN_SONGS_KEY = 'yt-music-rewinder:hidden-songs';
+const ACCENT_COLOR_KEY = 'yt-music-rewinder:accent-color';
+const DEFAULT_ACCENT_COLOR = '#3987e5';
+
+function loadHiddenSongs() {
+  try {
+    const raw = localStorage.getItem(HIDDEN_SONGS_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function loadAccentColor() {
+  try {
+    return localStorage.getItem(ACCENT_COLOR_KEY) || DEFAULT_ACCENT_COLOR;
+  } catch {
+    return DEFAULT_ACCENT_COLOR;
+  }
+}
+
+function hexToRgba(hex, alpha) {
+  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!match) return null;
+  const [r, g, b] = match.slice(1).map((part) => parseInt(part, 16));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export default function App() {
   const history = useHistoryData();
   const { dataset, status } = history;
@@ -21,6 +49,22 @@ export default function App() {
   const [view, setView] = useState('dashboard');
   const [storiesOpen, setStoriesOpen] = useState(false);
   const [theme, setTheme] = useState(null);
+  const [accentColor, setAccentColor] = useState(loadAccentColor);
+  const [hiddenSongs, setHiddenSongs] = useState(loadHiddenSongs);
+
+  const hideSong = (hideKey) => {
+    setHiddenSongs((current) => {
+      const next = new Set(current);
+      next.add(hideKey);
+      localStorage.setItem(HIDDEN_SONGS_KEY, JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const unhideAllSongs = () => {
+    setHiddenSongs(new Set());
+    localStorage.removeItem(HIDDEN_SONGS_KEY);
+  };
 
   const bounds = useMemo(() => {
     if (!dataset || !dataset.n) return null;
@@ -38,12 +82,20 @@ export default function App() {
     else delete document.documentElement.dataset.theme;
   }, [theme]);
 
+  useEffect(() => {
+    document.documentElement.style.setProperty('--series-1', accentColor);
+    const soft = hexToRgba(accentColor, 0.16);
+    if (soft) document.documentElement.style.setProperty('--series-1-soft', soft);
+    localStorage.setItem(ACCENT_COLOR_KEY, accentColor);
+  }, [accentColor]);
+
   const stats = useStats(dataset, {
     from: range?.from ?? -Infinity,
     to: range?.to ?? Infinity,
     musicOnly,
     overrides: history.overrides,
     trackMinutes,
+    hiddenSongs,
   });
 
   const showLanding = status === STATUS.IDLE || status === STATUS.PARSING || status === STATUS.ERROR;
@@ -56,6 +108,16 @@ export default function App() {
           YouTube Music Rewinder
         </span>
         <div className="topbar__actions">
+          <label className="colorpicker" title="Cambiar color principal">
+            <span className="colorpicker__swatch" style={{ background: accentColor }} aria-hidden="true" />
+            Color
+            <input
+              type="color"
+              className="colorpicker__input"
+              value={accentColor}
+              onChange={(event) => setAccentColor(event.target.value)}
+            />
+          </label>
           <button
             type="button"
             className="linkbutton"
@@ -113,7 +175,14 @@ export default function App() {
               onClose={() => setView('dashboard')}
             />
           ) : (
-            <Dashboard stats={stats} musicOnly={musicOnly} trackMinutes={trackMinutes} />
+            <Dashboard
+              stats={stats}
+              musicOnly={musicOnly}
+              trackMinutes={trackMinutes}
+              hiddenSongsCount={hiddenSongs.size}
+              onHideSong={hideSong}
+              onUnhideAllSongs={unhideAllSongs}
+            />
           )}
 
           <footer className="footer">

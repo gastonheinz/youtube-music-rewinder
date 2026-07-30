@@ -7,6 +7,7 @@ import { toDateInput, dateInputToStart, dateInputToEnd, startOfLocalDay, endOfLo
  */
 export function DateRangePicker({ range, bounds, onChange, musicOnly, onMusicOnlyChange }) {
   const presets = [
+    { id: '7d', label: '7 días', days: 7 },
     { id: '30d', label: '30 días', days: 30 },
     { id: '90d', label: '90 días', days: 90 },
     { id: '365d', label: '1 año', days: 365 },
