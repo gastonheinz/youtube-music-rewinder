@@ -176,6 +176,19 @@
   white-space: nowrap;
 }
 
+.barlist__name--link,
+.barlist__secondary--link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.barlist__name--link:hover,
+.barlist__name--link:focus-visible,
+.barlist__secondary--link:hover,
+.barlist__secondary--link:focus-visible {
+  text-decoration: underline;
+}
+
 .barlist__track {
   height: 12px;
   background: var(--surface-2);

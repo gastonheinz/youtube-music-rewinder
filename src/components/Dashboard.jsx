@@ -18,6 +18,16 @@ import {
   pluralize,
 } from '../lib/format.js';
 
+/** Busqueda de un artista en YouTube Music: no tenemos su canal, pero el nombre alcanza. */
+function artistSearchUrl(name) {
+  return `https://music.youtube.com/search?q=${encodeURIComponent(name)}`;
+}
+
+/** El video representativo de la cancion, tal como se escucho. */
+function songWatchUrl(videoId) {
+  return videoId ? `https://music.youtube.com/watch?v=${videoId}` : undefined;
+}
+
 export function Dashboard({
   stats,
   musicOnly,
@@ -100,6 +110,7 @@ export function Dashboard({
           items={stats.topArtists.map((artist) => ({
             key: artist.key,
             name: artist.name,
+            nameHref: artistSearchUrl(artist.name),
             secondary: pluralize(artist.songs, 'canción', 'canciones'),
             plays: artist.plays,
             videoId: artist.videoId,
@@ -112,7 +123,9 @@ export function Dashboard({
           items={stats.topSongs.map((song) => ({
             key: song.key,
             name: song.name,
+            nameHref: songWatchUrl(song.videoId),
             secondary: song.artist,
+            secondaryHref: song.artist ? artistSearchUrl(song.artist) : undefined,
             plays: song.plays,
             videoId: song.videoId,
             hideKey: song.hideKey,
@@ -230,6 +243,7 @@ export function Dashboard({
           items={stats.discoveries.map((artist) => ({
             key: artist.key,
             name: artist.name,
+            nameHref: artistSearchUrl(artist.name),
             secondary: `desde el ${formatDate(artist.firstPlay)}`,
             plays: artist.plays,
             videoId: artist.videoId,

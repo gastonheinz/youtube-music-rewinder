@@ -59,11 +59,36 @@ export function BarList({
               <Thumb videoId={item.videoId} name={item.name} className="thumb--row" />
             ) : null}
             <span className="barlist__label">
-              <span className="barlist__name" title={item.name}>
-                {item.name}
-              </span>
+              {item.nameHref ? (
+                <a
+                  className="barlist__name barlist__name--link"
+                  title={item.name}
+                  href={item.nameHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <span className="barlist__name" title={item.name}>
+                  {item.name}
+                </span>
+              )}
               {item.secondary ? (
-                <span className="barlist__secondary muted">{item.secondary}</span>
+                item.secondaryHref ? (
+                  <a
+                    className="barlist__secondary barlist__secondary--link muted"
+                    href={item.secondaryHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    {item.secondary}
+                  </a>
+                ) : (
+                  <span className="barlist__secondary muted">{item.secondary}</span>
+                )
               ) : null}
             </span>
             <span className="barlist__track">
