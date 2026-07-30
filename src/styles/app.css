@@ -74,6 +74,39 @@
   color: var(--text-primary);
 }
 
+.colorpicker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.colorpicker:hover {
+  color: var(--text-primary);
+}
+
+.colorpicker__swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.colorpicker__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
 .chip {
   background: var(--surface-2);
   border: 1px solid var(--border);
