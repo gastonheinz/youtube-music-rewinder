@@ -44,33 +44,33 @@ export function ChartFrame({ title, subtitle, columns, rows, children, footer })
       */}
       {rows?.length ? (
         <div id={tableId} className={showTable ? 'chart__tableWrap' : 'visually-hidden'}>
-        <table className="chart__table">
-          <caption className="visually-hidden">{title}</caption>
-          <thead>
-            <tr>
-              {columns.map((column) => (
-                <th key={column} scope="col">
-                  {column}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={index}>
-                {row.map((cell, cellIndex) =>
-                  cellIndex === 0 ? (
-                    <th key={cellIndex} scope="row">
-                      {cell}
-                    </th>
-                  ) : (
-                    <td key={cellIndex}>{cell}</td>
-                  ),
-                )}
+          <table className="chart__table">
+            <caption className="visually-hidden">{title}</caption>
+            <thead>
+              <tr>
+                {columns.map((column) => (
+                  <th key={column} scope="col">
+                    {column}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={index}>
+                  {row.map((cell, cellIndex) =>
+                    cellIndex === 0 ? (
+                      <th key={cellIndex} scope="row">
+                        {cell}
+                      </th>
+                    ) : (
+                      <td key={cellIndex}>{cell}</td>
+                    ),
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : null}
     </figure>

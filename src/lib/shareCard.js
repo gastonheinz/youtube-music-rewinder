@@ -12,6 +12,10 @@
 const WIDTH = 1080;
 const HEIGHT = 1920;
 
+/** Linea de base del pie y el limite que el contenido no puede cruzar. */
+const FOOTER_BASELINE = HEIGHT - 90;
+const FOOTER_SAFE_TOP = FOOTER_BASELINE - 52;
+
 const COLORS = {
   background: '#101014',
   backgroundAccent: '#16233a',
@@ -142,33 +146,53 @@ export function renderShareCard(stats, { rangeLabel, musicOnly, durationLabel })
     450,
   );
 
+  const artists = stats.topArtists.slice(0, 5).map((artist) => ({
+    name: artist.name,
+    plays: artist.plays,
+  }));
+  const songs = stats.topSongs.slice(0, 5).map((song) => ({
+    name: song.name,
+    secondary: song.artist,
+    plays: song.plays,
+  }));
+
+  const gap = 14;
+
   context.fillStyle = COLORS.primary;
   context.font = font(40, 600);
   context.fillText('Top artistas', margin, 560);
-  let cursor = drawRankedList(
-    context,
-    stats.topArtists.slice(0, 5).map((artist) => ({ name: artist.name, plays: artist.plays })),
-    { x: margin, y: 600, width: contentWidth, rowHeight: 96, gap: 16 },
-  );
+  let cursor = drawRankedList(context, artists, {
+    x: margin,
+    y: 600,
+    width: contentWidth,
+    rowHeight: 92,
+    gap,
+  });
 
   context.fillStyle = COLORS.primary;
   context.font = font(40, 600);
   context.textBaseline = 'alphabetic';
-  context.fillText('Top canciones', margin, cursor + 70);
-  cursor = drawRankedList(
-    context,
-    stats.topSongs.slice(0, 5).map((song) => ({
-      name: song.name,
-      secondary: song.artist,
-      plays: song.plays,
-    })),
-    { x: margin, y: cursor + 110, width: contentWidth, rowHeight: 108, gap: 16 },
-  );
+  context.fillText('Top canciones', margin, cursor + 52);
+
+  // La altura de las filas de canciones sale del espacio que queda hasta el
+  // pie, no de un numero fijo: con las 5 canciones y alturas fijas el ultimo
+  // renglon se montaba encima del texto del pie.
+  const songsTop = cursor + 92;
+  const songRowHeight = songs.length
+    ? Math.min(108, Math.floor((FOOTER_SAFE_TOP - songsTop) / songs.length) - gap)
+    : 0;
+  drawRankedList(context, songs, {
+    x: margin,
+    y: songsTop,
+    width: contentWidth,
+    rowHeight: songRowHeight,
+    gap,
+  });
 
   context.textBaseline = 'alphabetic';
   context.fillStyle = COLORS.muted;
   context.font = font(26, 400);
-  context.fillText('Generado con YouTube Music Rewinder · datos de Google Takeout', margin, HEIGHT - 90);
+  context.fillText('Generado con YouTube Music Rewinder · datos de Google Takeout', margin, FOOTER_BASELINE);
 
   return canvas;
 }

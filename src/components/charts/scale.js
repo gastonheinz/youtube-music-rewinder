@@ -13,14 +13,21 @@ export function niceCeil(value) {
 /**
  * Ticks del eje Y en numeros redondos. El eje carga los valores que no
  * etiquetamos directamente sobre las marcas.
+ *
+ * El tope se redondea a un multiplo del paso, no al revez. Calculando el tope
+ * primero salian ejes con el ultimo intervalo mas corto que el resto (con
+ * max=5: 0, 2, 4, 5), y un eje donde los intervalos no miden lo mismo hace leer
+ * mal las alturas de las barras.
+ *
+ * `minStep` es 1 porque todo lo que graficamos son reproducciones: un eje con
+ * 0,5 reproducciones no significa nada.
  */
-export function yTicks(max, count = 4) {
-  const top = niceCeil(max);
-  const step = niceCeil(top / count);
+export function yTicks(max, count = 4, minStep = 1) {
+  const step = Math.max(minStep, niceCeil(niceCeil(max) / count));
+  const top = Math.ceil(Math.max(max, step) / step) * step;
   const ticks = [];
-  for (let value = 0; value <= top; value += step) ticks.push(value);
-  if (ticks[ticks.length - 1] !== top) ticks.push(top);
-  return { top: ticks[ticks.length - 1], ticks };
+  for (let value = 0; value <= top + step / 1000; value += step) ticks.push(value);
+  return { top, ticks };
 }
 
 /** Indice de bucket dentro de una rampa secuencial de `steps` pasos. */

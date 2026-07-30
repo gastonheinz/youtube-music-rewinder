@@ -7,6 +7,10 @@ const dateFormatter = new Intl.DateTimeFormat('es-AR', {
   month: 'short',
   year: 'numeric',
 });
+const axisDateFormatter = new Intl.DateTimeFormat('es-AR', {
+  day: 'numeric',
+  month: 'short',
+});
 const longDateFormatter = new Intl.DateTimeFormat('es-AR', {
   weekday: 'long',
   day: 'numeric',
@@ -49,6 +53,16 @@ export function formatDayKey(key) {
 export function formatLongDayKey(key) {
   const [year, month, day] = String(key).split('-').map(Number);
   return longDateFormatter.format(new Date(year, month - 1, day));
+}
+
+/**
+ * Version corta para ejes: "14 jun". Sin año a proposito — en un eje la
+ * fecha completa ocupa el triple y se pisa con la vecina. El año ya esta en el
+ * rango elegido arriba, y el tooltip y la tabla de datos dan la fecha entera.
+ */
+export function formatDayKeyAxis(key) {
+  const [year, month, day] = String(key).split('-').map(Number);
+  return axisDateFormatter.format(new Date(year, month - 1, day));
 }
 
 /** 14 -> "14:00". */

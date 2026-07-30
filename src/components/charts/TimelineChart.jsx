@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useElementWidth } from '../../hooks/useElementWidth.js';
-import { formatNumber, formatDayKey } from '../../lib/format.js';
+import { formatNumber, formatDayKey, formatDayKeyAxis } from '../../lib/format.js';
 import { ChartFrame, ChartTooltip, EmptyChart } from './ChartFrame.jsx';
 import { yTicks } from './scale.js';
 
 const HEIGHT = 220;
 const PAD = { top: 12, right: 12, bottom: 30, left: 44 };
+
+/** Ancho aproximado de una fecha corta ("14 jun") a 11px, con aire al lado. */
+const DATE_LABEL_WIDTH = 66;
 
 /**
  * Evolucion diaria. Serie unica -> area de un solo tono al 10% con la linea de
@@ -40,8 +43,11 @@ export function TimelineChart({ title, subtitle, points, footer }) {
     0,
   );
 
-  // Como maximo 6 fechas en el eje, para que no se pisen.
-  const tickEvery = Math.max(1, Math.ceil(points.length / 6));
+  // Cuantas fechas caben en el eje depende del ancho, no de un numero fijo: con
+  // un tope de 6 etiquetas, a 390px entraban 6 fechas de ~80px en 252px de eje
+  // y se pisaban entre si. Se reserva el ancho de una etiqueta por hueco.
+  const maxTicks = Math.max(2, Math.min(6, Math.floor(plotWidth / DATE_LABEL_WIDTH)));
+  const tickEvery = Math.max(1, Math.ceil(points.length / maxTicks));
 
   const handlePointer = (event) => {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -142,7 +148,7 @@ export function TimelineChart({ title, subtitle, points, footer }) {
                 textAnchor={index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'middle'}
                 className="chart__tick"
               >
-                {formatDayKey(point.date)}
+                {formatDayKeyAxis(point.date)}
               </text>
             ) : null,
           )}

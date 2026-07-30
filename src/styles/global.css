@@ -46,7 +46,15 @@ button {
   border-radius: 4px;
 }
 
-/* Contenido para lectores de pantalla: cada grafico tiene su tabla equivalente. */
+/*
+  Contenido para lectores de pantalla: cada grafico tiene su tabla equivalente.
+
+  OJO: no aplicar esta clase directamente sobre un <table> ni un <caption>. Con
+  display: table el width: 1px se ignora (la caja nunca baja de su ancho de
+  contenido), el clip no la contiene y la tabla termina generando scroll
+  horizontal en toda la pagina. Va envuelta en un <div> con esta clase, que es
+  lo que hace ChartFrame.
+*/
 .visually-hidden {
   position: absolute;
   width: 1px;

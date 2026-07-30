@@ -33,14 +33,20 @@
   --good: #0ca30c;
   --critical: #d03b3b;
 
-  /* Rampa secuencial para el heatmap: en oscuro, mas es mas claro. */
-  --seq-0: #1f2530;
-  --seq-1: #104281;
-  --seq-2: #184f95;
-  --seq-3: #256abf;
-  --seq-4: #3987e5;
-  --seq-5: #6da7ec;
-  --seq-6: #9ec5f4;
+  /*
+    Rampa secuencial del heatmap: en oscuro, mas es mas claro.
+    --seq-0 NO es un paso de la rampa, es la celda vacia (cero reproducciones):
+    por eso puede quedar cerca de la superficie. Los seis pasos con datos
+    (--seq-1..6) salen de validate_palette.js --ordinal contra la superficie de
+    la tarjeta: L monotona, huecos >= 0.06 y el paso mas debil sobre 2:1.
+  */
+  --seq-0: #23293a;
+  --seq-1: #2b4d78;
+  --seq-2: #215fa9;
+  --seq-3: #2d74c9;
+  --seq-4: #448ae1;
+  --seq-5: #5da1f7;
+  --seq-6: #78b9ff;
 
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -60,7 +66,7 @@
 
     --text-primary: #0b0b0b;
     --text-secondary: #52514e;
-    --text-muted: #898781;
+    --text-muted: #726f69;
 
     --grid: #e1e0d9;
     --axis: #c3c2b7;
@@ -74,13 +80,13 @@
     --critical: #d03b3b;
 
     /* En claro la rampa va al reves: mas es mas oscuro. */
-    --seq-0: #eef2f7;
-    --seq-1: #cde2fb;
-    --seq-2: #9ec5f4;
-    --seq-3: #6da7ec;
-    --seq-4: #3987e5;
-    --seq-5: #256abf;
-    --seq-6: #104281;
+    --seq-0: #e6eaf1;
+    --seq-1: #78b9ff;
+    --seq-2: #5a9ef3;
+    --seq-3: #3c83d9;
+    --seq-4: #2069bd;
+    --seq-5: #0f5199;
+    --seq-6: #1b3c66;
   }
 }
 
@@ -94,7 +100,7 @@
 
   --text-primary: #0b0b0b;
   --text-secondary: #52514e;
-  --text-muted: #898781;
+  --text-muted: #726f69;
 
   --grid: #e1e0d9;
   --axis: #c3c2b7;
@@ -107,11 +113,11 @@
   --good: #006300;
   --critical: #d03b3b;
 
-  --seq-0: #eef2f7;
-  --seq-1: #cde2fb;
-  --seq-2: #9ec5f4;
-  --seq-3: #6da7ec;
-  --seq-4: #3987e5;
-  --seq-5: #256abf;
-  --seq-6: #104281;
+  --seq-0: #e6eaf1;
+  --seq-1: #78b9ff;
+  --seq-2: #5a9ef3;
+  --seq-3: #3c83d9;
+  --seq-4: #2069bd;
+  --seq-5: #0f5199;
+  --seq-6: #1b3c66;
 }
