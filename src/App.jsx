@@ -202,7 +202,8 @@ export default function App() {
             </label>
             <p className="muted footer__note">
               Tu historial se procesa entero dentro de tu navegador y se guarda solo en este
-              dispositivo. No se sube a ningún servidor.
+              dispositivo. No se sube a ningún servidor. Las miniaturas son lo único que se pide
+              afuera: se bajan de i.ytimg.com por el id de los videos que ya están en tu historial.
             </p>
           </footer>
         </>

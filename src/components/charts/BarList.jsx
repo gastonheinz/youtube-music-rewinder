@@ -1,4 +1,5 @@
 import { formatNumber } from '../../lib/format.js';
+import { Thumb } from '../Thumb.jsx';
 import { ChartFrame, EmptyChart } from './ChartFrame.jsx';
 
 /**
@@ -7,6 +8,10 @@ import { ChartFrame, EmptyChart } from './ChartFrame.jsx';
  * Todas las barras van del MISMO color. Artistas y canciones son categorias
  * nominales: pintarlas mas oscuras cuanto mas grandes duplicaria en el color lo
  * que el largo de la barra ya dice, y gastaria el unico canal libre que queda.
+ *
+ * Si los items traen `videoId` aparece la miniatura del video. La columna se
+ * agrega o no para TODA la lista, no fila por fila, porque una grilla con
+ * imagenes intercaladas desalinea los nombres.
  */
 export function BarList({
   title,
@@ -26,6 +31,7 @@ export function BarList({
   }
 
   const max = Math.max(...items.map((item) => item.plays));
+  const withThumbs = items.some((item) => item.videoId);
 
   return (
     <ChartFrame
@@ -39,12 +45,19 @@ export function BarList({
         formatNumber(item.plays),
       ])}
     >
-      <ol className={`barlist${onHideItem ? ' barlist--hideable' : ''}`}>
+      <ol
+        className={`barlist${onHideItem ? ' barlist--hideable' : ''}${
+          withThumbs ? ' barlist--thumbs' : ''
+        }`}
+      >
         {items.map((item, index) => (
           <li key={item.key ?? item.name} className="barlist__row">
             <span className="barlist__rank" aria-hidden="true">
               {index + 1}
             </span>
+            {withThumbs ? (
+              <Thumb videoId={item.videoId} name={item.name} className="thumb--row" />
+            ) : null}
             <span className="barlist__label">
               <span className="barlist__name" title={item.name}>
                 {item.name}

@@ -133,6 +133,15 @@ export function computeStats(dataset, options = {}) {
   const dayPlays = new Map();
   const monthArtists = new Map();
 
+  // Un videoId representativo por cancion y por canal, para poder mostrar la
+  // miniatura. Nos quedamos con la PRIMERA reproduccion del rango en vez de
+  // buscar la subida mas escuchada: eso ultimo obligaria a contar cada par
+  // (cancion, video) y a esta altura del historial es memoria que no vale una
+  // miniatura marginalmente mejor. Igual es siempre un video que el usuario vio.
+  const songVideo = new Map();
+  const channelVideo = new Map();
+  const artistVideo = new Map();
+
   const byHour = new Array(24).fill(0);
   const byWeekday = new Array(7).fill(0);
   const heatmap = Array.from({ length: 7 }, () => new Array(24).fill(0));
@@ -214,6 +223,13 @@ export function computeStats(dataset, options = {}) {
     const songIdx = dataset.songIdx[i];
     const channelIdx = dataset.chIdx[i];
 
+    const videoId = dataset.videoIds[i];
+    if (videoId) {
+      if (songIdx >= 0 && !songVideo.has(songIdx)) songVideo.set(songIdx, videoId);
+      if (channelIdx >= 0 && !channelVideo.has(channelIdx)) channelVideo.set(channelIdx, videoId);
+      if (artistIdx >= 0 && !artistVideo.has(artistIdx)) artistVideo.set(artistIdx, videoId);
+    }
+
     if (artistIdx >= 0) {
       increment(artistPlays, artistIdx);
 
@@ -248,11 +264,34 @@ export function computeStats(dataset, options = {}) {
   const rangeTo = Number.isFinite(to) ? to : (dataset.t[dataset.n - 1] ?? Date.now());
   const spanDays = daysInRange(rangeFrom, rangeTo);
 
+  /**
+   * Miniatura del artista: la de su cancion mas escuchada, no la del primer
+   * video que sono. Un artista se reconoce por su tema conocido, y como esto se
+   * resuelve solo para los pocos que entran al top, recorrer sus canciones sale
+   * gratis frente a mantener el conteo durante toda la pasada.
+   */
+  const artistThumb = (artistIdx) => {
+    const songs = artistSongs.get(artistIdx);
+    let best = -1;
+    let bestPlays = -1;
+    if (songs) {
+      for (const songIdx of songs) {
+        const count = songPlays.get(songIdx) ?? 0;
+        if (count > bestPlays) {
+          bestPlays = count;
+          best = songIdx;
+        }
+      }
+    }
+    return (best >= 0 ? songVideo.get(best) : null) ?? artistVideo.get(artistIdx) ?? '';
+  };
+
   const topArtists = topFromMap(artistPlays, topLimit, (idx, count) => ({
     key: idx,
     name: dataset.artists[idx],
     plays: count,
     songs: artistSongs.get(idx)?.size ?? 0,
+    videoId: artistThumb(idx),
   }));
 
   const topSongs = [...songPlays.entries()]
@@ -260,7 +299,14 @@ export function computeStats(dataset, options = {}) {
       const artistIdx = dataset.songArtistIdx[idx];
       const name = dataset.songLabels[idx] || '(sin titulo)';
       const artist = artistIdx >= 0 ? dataset.artists[artistIdx] : '';
-      return { key: idx, name, artist, plays: count, hideKey: songHideKey(name, artist) };
+      return {
+        key: idx,
+        name,
+        artist,
+        plays: count,
+        videoId: songVideo.get(idx) ?? '',
+        hideKey: songHideKey(name, artist),
+      };
     })
     .filter((song) => !hiddenSongs?.has(song.hideKey))
     .sort((a, b) => b.plays - a.plays)
@@ -270,6 +316,7 @@ export function computeStats(dataset, options = {}) {
     key: idx,
     name: dataset.channels[idx],
     plays: count,
+    videoId: channelVideo.get(idx) ?? '',
   }));
 
   const activeDaysSorted = [...dayPlays.keys()].sort((a, b) => a - b);
@@ -316,7 +363,12 @@ export function computeStats(dataset, options = {}) {
           bestPlays = count;
         }
       }
-      return { month, artist: bestIdx >= 0 ? dataset.artists[bestIdx] : '', plays: bestPlays };
+      return {
+        month,
+        artist: bestIdx >= 0 ? dataset.artists[bestIdx] : '',
+        plays: bestPlays,
+        videoId: bestIdx >= 0 ? artistThumb(bestIdx) : '',
+      };
     });
 
   const firstSeen = firstSeenByArtist(dataset, verdicts, musicOnly);
@@ -332,6 +384,7 @@ export function computeStats(dataset, options = {}) {
       name: dataset.artists[idx],
       plays: count,
       firstPlay: firstSeen.get(idx),
+      videoId: artistThumb(idx),
     }));
 
   // Periodo anterior de igual duracion, para el delta.
@@ -375,6 +428,7 @@ export function computeStats(dataset, options = {}) {
               : '',
           plays: obsession.plays,
           date: dayNumberToKey(obsession.day),
+          videoId: songVideo.get(obsession.songIdx) ?? '',
         }
       : null,
     monthlyTopArtist,

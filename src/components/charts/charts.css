@@ -203,6 +203,22 @@
   grid-template-columns: 20px minmax(90px, 1.4fr) minmax(60px, 2fr) auto auto;
 }
 
+/* Con miniatura entra una columna extra adelante del nombre. Se achica lo que
+   le toca a la barra, no al nombre: leer que cancion es importa mas que el
+   ultimo pixel de largo de la barra. */
+.barlist--thumbs .barlist__row {
+  grid-template-columns: 20px auto minmax(90px, 1.4fr) minmax(50px, 1.6fr) auto;
+}
+
+.barlist--thumbs.barlist--hideable .barlist__row {
+  grid-template-columns: 20px auto minmax(90px, 1.4fr) minmax(50px, 1.6fr) auto auto;
+}
+
+.thumb--row {
+  width: 36px;
+  height: 36px;
+}
+
 .barlist__hide {
   border: none;
   background: transparent;
@@ -229,8 +245,23 @@
     grid-template-columns: 18px minmax(80px, 1fr) auto auto;
   }
 
+  /* En pantalla angosta la barra ya no entra, pero la miniatura si: sigue
+     identificando la fila de un vistazo y ocupa mucho menos. */
+  .barlist--thumbs .barlist__row {
+    grid-template-columns: 18px auto minmax(80px, 1fr) auto;
+  }
+
+  .barlist--thumbs.barlist--hideable .barlist__row {
+    grid-template-columns: 18px auto minmax(80px, 1fr) auto auto;
+  }
+
   .barlist__track {
     display: none;
+  }
+
+  .thumb--row {
+    width: 32px;
+    height: 32px;
   }
 }
 

@@ -1,4 +1,5 @@
 import { HeroFigure, StatTile } from './StatTile.jsx';
+import { Thumb } from './Thumb.jsx';
 import { BarList } from './charts/BarList.jsx';
 import { ColumnChart } from './charts/ColumnChart.jsx';
 import { Heatmap } from './charts/Heatmap.jsx';
@@ -101,6 +102,7 @@ export function Dashboard({
             name: artist.name,
             secondary: pluralize(artist.songs, 'canción', 'canciones'),
             plays: artist.plays,
+            videoId: artist.videoId,
           }))}
         />
         <BarList
@@ -112,6 +114,7 @@ export function Dashboard({
             name: song.name,
             secondary: song.artist,
             plays: song.plays,
+            videoId: song.videoId,
             hideKey: song.hideKey,
           }))}
           onHideItem={onHideSong ? (item) => onHideSong(item.hideKey) : undefined}
@@ -185,13 +188,21 @@ export function Dashboard({
               </li>
             ) : null}
             {stats.obsession ? (
-              <li>
-                <span className="muted">Tu obsesión</span>
-                <strong>{stats.obsession.name}</strong>
-                <span className="secondary">
-                  {stats.obsession.artist ? `${stats.obsession.artist} · ` : ''}
-                  {stats.obsession.plays} veces el {formatDayKey(stats.obsession.date)}
-                </span>
+              <li className="moments__item--media">
+                <Thumb
+                  videoId={stats.obsession.videoId}
+                  name={stats.obsession.name}
+                  size="large"
+                  className="thumb--moment"
+                />
+                <div className="moments__text">
+                  <span className="muted">Tu obsesión</span>
+                  <strong>{stats.obsession.name}</strong>
+                  <span className="secondary">
+                    {stats.obsession.artist ? `${stats.obsession.artist} · ` : ''}
+                    {stats.obsession.plays} veces el {formatDayKey(stats.obsession.date)}
+                  </span>
+                </div>
               </li>
             ) : null}
             {stats.monthlyTopArtist.length > 1 ? (
@@ -200,6 +211,7 @@ export function Dashboard({
                 <ul className="moments__months">
                   {stats.monthlyTopArtist.map((month) => (
                     <li key={month.month}>
+                      <Thumb videoId={month.videoId} name={month.artist} className="thumb--mini" />
                       <span className="secondary">{monthKeyToLabel(month.month)}</span>
                       <strong>{month.artist}</strong>
                       <span className="muted">{formatNumber(month.plays)}</span>
@@ -220,6 +232,7 @@ export function Dashboard({
             name: artist.name,
             secondary: `desde el ${formatDate(artist.firstPlay)}`,
             plays: artist.plays,
+            videoId: artist.videoId,
           }))}
           footer="Se compara contra todo tu historial, no solo contra el rango elegido."
         />
@@ -234,6 +247,7 @@ export function Dashboard({
             key: channel.key,
             name: channel.name,
             plays: channel.plays,
+            videoId: channel.videoId,
           }))}
         />
       </section>

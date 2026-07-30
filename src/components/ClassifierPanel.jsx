@@ -1,5 +1,6 @@
 import { MUSIC, NOT_MUSIC } from '../lib/takeout/classify.js';
 import { formatNumber, pluralize } from '../lib/format.js';
+import { Thumb } from './Thumb.jsx';
 
 /**
  * Panel de ajuste del clasificador.
@@ -37,6 +38,11 @@ export function ClassifierPanel({ stats, overrides, onChannelOverride, onReset, 
         <ul className="reviewlist">
           {pending.map((row) => (
             <li key={row.channel} className="reviewlist__row">
+              <Thumb
+                videoId={row.exampleVideoId}
+                name={row.channel}
+                className="thumb--review"
+              />
               <div className="reviewlist__info">
                 <strong>{row.channel}</strong>
                 <span className="muted reviewlist__example">«{row.exampleTitle}»</span>

@@ -9,14 +9,16 @@ import {
   pluralize,
 } from '../../lib/format.js';
 import { WEEKDAYS } from '../../lib/stats/time.js';
+import { Thumb } from '../Thumb.jsx';
 
 /** Lista escalonada que usan varias slides. */
 function RankedList({ items, showArtist }) {
   return (
-    <ol className="storylist">
+    <ol className="storylist storylist--thumbs">
       {items.map((item, index) => (
         <li key={item.key ?? item.name} style={{ animationDelay: `${index * 90}ms` }}>
           <span className="storylist__rank">{index + 1}</span>
+          <Thumb videoId={item.videoId} name={item.name} className="thumb--story" />
           <span className="storylist__label">
             <strong>{item.name}</strong>
             {showArtist && item.artist ? <span className="muted">{item.artist}</span> : null}
@@ -97,6 +99,12 @@ export function buildSlides(stats, musicOnly) {
       content: (
         <>
           <p className="story__kicker">Tu artista número uno</p>
+          <Thumb
+            videoId={top.videoId}
+            name={top.name}
+            size="large"
+            className="thumb--hero"
+          />
           <h2 className="story__headline story__headline--big">{top.name}</h2>
           <p className="story__lead">
             {pluralize(top.plays, 'reproducción', 'reproducciones')} · {share}% de todo lo que
@@ -134,6 +142,12 @@ export function buildSlides(stats, musicOnly) {
       content: (
         <>
           <p className="story__kicker">Tu obsesión</p>
+          <Thumb
+            videoId={stats.obsession.videoId}
+            name={stats.obsession.name}
+            size="large"
+            className="thumb--hero"
+          />
           <h2 className="story__headline">{stats.obsession.name}</h2>
           <p className="story__lead">
             {stats.obsession.plays} veces en un solo día

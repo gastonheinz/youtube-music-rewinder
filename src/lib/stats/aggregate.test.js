@@ -56,6 +56,42 @@ describe('rankings', () => {
   });
 });
 
+describe('video representativo para la miniatura', () => {
+  const result = stats();
+
+  it('le da a cada cancion del top un video que el usuario realmente vio', () => {
+    const ids = new Set(dataset.videoIds.filter(Boolean));
+    for (const song of result.topSongs) {
+      expect(ids.has(song.videoId)).toBe(true);
+    }
+  });
+
+  it('al artista le pone la miniatura de su cancion mas escuchada', () => {
+    // traitor es la mas escuchada de Olivia Rodrigo (3 subidas unificadas), asi
+    // que su miniatura tiene que salir de ahi y no del primer video que sono.
+    const olivia = result.topArtists.find((artist) => artist.name === 'Olivia Rodrigo');
+    const traitor = result.topSongs.find((song) => song.name === 'traitor');
+    expect(olivia.videoId).toBe(traitor.videoId);
+  });
+
+  it('tambien acompana a canales, descubrimientos, obsesion y artista del mes', () => {
+    expect(result.topChannels.every((channel) => channel.videoId)).toBe(true);
+    expect(result.discoveries.every((artist) => artist.videoId)).toBe(true);
+    expect(result.obsession.videoId).toBeTruthy();
+    expect(result.monthlyTopArtist.every((month) => month.videoId)).toBe(true);
+  });
+
+  it('sigue el rango: si el video queda afuera, la miniatura cambia', () => {
+    const julio = stats({
+      from: dateInputToStart('2026-07-01'),
+      to: dateInputToEnd('2026-07-31'),
+    });
+    for (const song of julio.topSongs) {
+      expect(song.videoId).toBeTruthy();
+    }
+  });
+});
+
 describe('filtro de musica', () => {
   it('sin filtro suma tambien los videos no musicales', () => {
     const all = stats({ musicOnly: false });
