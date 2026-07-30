@@ -17,7 +17,14 @@ import {
   pluralize,
 } from '../lib/format.js';
 
-export function Dashboard({ stats, musicOnly, trackMinutes }) {
+export function Dashboard({
+  stats,
+  musicOnly,
+  trackMinutes,
+  hiddenSongsCount = 0,
+  onHideSong,
+  onUnhideAllSongs,
+}) {
   const { totals, comparison } = stats;
 
   if (!totals.plays) {
@@ -105,7 +112,19 @@ export function Dashboard({ stats, musicOnly, trackMinutes }) {
             name: song.name,
             secondary: song.artist,
             plays: song.plays,
+            hideKey: song.hideKey,
           }))}
+          onHideItem={onHideSong ? (item) => onHideSong(item.hideKey) : undefined}
+          footer={
+            hiddenSongsCount ? (
+              <>
+                {pluralize(hiddenSongsCount, 'canción oculta', 'canciones ocultas')} del top ·{' '}
+                <button type="button" className="linkbutton" onClick={onUnhideAllSongs}>
+                  mostrar todas
+                </button>
+              </>
+            ) : undefined
+          }
         />
       </section>
 

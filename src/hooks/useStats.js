@@ -8,7 +8,7 @@
 import { useMemo } from 'react';
 import { computeStats, resolveVerdicts, DEFAULT_TRACK_MINUTES } from '../lib/stats/aggregate.js';
 
-export function useStats(dataset, { from, to, musicOnly, overrides, trackMinutes }) {
+export function useStats(dataset, { from, to, musicOnly, overrides, trackMinutes, hiddenSongs }) {
   const verdicts = useMemo(
     () => (dataset ? resolveVerdicts(dataset, overrides) : null),
     [dataset, overrides],
@@ -22,6 +22,7 @@ export function useStats(dataset, { from, to, musicOnly, overrides, trackMinutes
       musicOnly,
       verdicts,
       trackMinutes: trackMinutes ?? DEFAULT_TRACK_MINUTES,
+      hiddenSongs,
     });
-  }, [dataset, verdicts, from, to, musicOnly, trackMinutes]);
+  }, [dataset, verdicts, from, to, musicOnly, trackMinutes, hiddenSongs]);
 }

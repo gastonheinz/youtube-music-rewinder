@@ -11,6 +11,17 @@ import { formatNumber } from './lib/format.js';
 import './styles/app.css';
 import './components/charts/charts.css';
 
+const HIDDEN_SONGS_KEY = 'yt-music-rewinder:hidden-songs';
+
+function loadHiddenSongs() {
+  try {
+    const raw = localStorage.getItem(HIDDEN_SONGS_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
 export default function App() {
   const history = useHistoryData();
   const { dataset, status } = history;
@@ -21,6 +32,21 @@ export default function App() {
   const [view, setView] = useState('dashboard');
   const [storiesOpen, setStoriesOpen] = useState(false);
   const [theme, setTheme] = useState(null);
+  const [hiddenSongs, setHiddenSongs] = useState(loadHiddenSongs);
+
+  const hideSong = (hideKey) => {
+    setHiddenSongs((current) => {
+      const next = new Set(current);
+      next.add(hideKey);
+      localStorage.setItem(HIDDEN_SONGS_KEY, JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const unhideAllSongs = () => {
+    setHiddenSongs(new Set());
+    localStorage.removeItem(HIDDEN_SONGS_KEY);
+  };
 
   const bounds = useMemo(() => {
     if (!dataset || !dataset.n) return null;
@@ -44,6 +70,7 @@ export default function App() {
     musicOnly,
     overrides: history.overrides,
     trackMinutes,
+    hiddenSongs,
   });
 
   const showLanding = status === STATUS.IDLE || status === STATUS.PARSING || status === STATUS.ERROR;
@@ -113,7 +140,14 @@ export default function App() {
               onClose={() => setView('dashboard')}
             />
           ) : (
-            <Dashboard stats={stats} musicOnly={musicOnly} trackMinutes={trackMinutes} />
+            <Dashboard
+              stats={stats}
+              musicOnly={musicOnly}
+              trackMinutes={trackMinutes}
+              hiddenSongsCount={hiddenSongs.size}
+              onHideSong={hideSong}
+              onUnhideAllSongs={unhideAllSongs}
+            />
           )}
 
           <footer className="footer">
