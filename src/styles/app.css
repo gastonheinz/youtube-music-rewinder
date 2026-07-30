@@ -358,8 +358,12 @@ code {
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
   gap: 14px;
+}
+
+.tiles > * {
+  min-width: 0;
 }
 
 .tile {
@@ -391,8 +395,20 @@ code {
   gap: 20px;
 }
 
+/*
+  min-width: 0 no es decorativo, es lo que permite que los graficos se
+  encojan. Un item de grid arranca con min-width: auto (= min-content), y el
+  min-content de una tarjeta con un <svg width="680"> es 680px: la tarjeta no
+  bajaba de ahi, el ResizeObserver nunca veia un ancho menor y el SVG se
+  quedaba clavado en la medida del desktop, desbordando la pagina en movil.
+*/
+.grid > * {
+  min-width: 0;
+}
+
+/* minmax(340px, ...) tambien impone un piso: por debajo de eso, una columna. */
 .grid--2 {
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
 }
 
 .dashboard__note {
